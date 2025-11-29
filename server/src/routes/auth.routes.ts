@@ -2,8 +2,11 @@ import { Router } from "express";
 import type { Router as ExpressRouter } from "express";
 import { login, logout, me, register, update } from "../controller/auth.controller.js"
 import { authMiddleware } from "../middleware/auth.middleware.js";
+import { arcjetProtection } from "../middleware/arcjet.middleware.js";
 
 const authRouter: ExpressRouter = Router();
+
+authRouter.use(arcjetProtection);
 
 authRouter.post('/user/register', register);
 authRouter.post('/user/login', login);
