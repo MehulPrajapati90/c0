@@ -23,6 +23,9 @@ app.get('/health', (req, res) => {
     })
 });
 
+app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/message', messageRouter);
+
 const serverConnect = async () => {
     await DBConnect();
     app.listen(port, async () => {
