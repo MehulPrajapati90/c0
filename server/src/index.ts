@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import DBConnect from "./config/db.js";
 import authRouter from "./routes/auth.routes.js";
+import messageRouter from "./routes/message.routes.js";
 dotenv.config();
 
 const app = express();
@@ -25,7 +26,7 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/v1/auth', authRouter);
-// app.use('/api/v1/message', messageRouter);
+app.use('/api/v1/message', messageRouter);
 
 const serverConnect = async () => {
     await DBConnect();
