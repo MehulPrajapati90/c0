@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { z } from "zod";
 import type { Request, Response } from "express";
 import UserModel from "../model/user.model.js";
+import { sendResgisterWellcomeEmail } from "./email.controller.js";
 
 const RegisterSchema = z.object({
     name: z.string("Name should be a valid string"),
@@ -52,16 +53,24 @@ export const register = async (req: Request, res: Response) => {
 
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET!, { expiresIn: "24h" });
 
-        res.cookie("token", token);
+        res.cookie("token", token, {
+            maxAge: 7 * 24 * 60 * 60 * 1000, // MS
+            httpOnly: true, // prevent XSS attacks: cross-site scripting
+            sameSite: "strict", // CSRF attacks
+            secure: process.env.NODE_ENV === "development" ? false : true,
+        });
+
+        await sendResgisterWellcomeEmail({ name, email });
 
         res.status(201).json({
             success: true,
             message: "Register Successfully"
-        })
+        });
+
 
     } catch (e) {
         console.log(e);
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: "Failed to register"
         })
@@ -94,7 +103,12 @@ export const login = async (req: Request, res: Response) => {
 
         const token = jwt.sign({ id: isExisted._id }, process.env.JWT_SECRET!, { expiresIn: "24h" })
 
-        res.cookie("token", token);
+        res.cookie("token", token, {
+            maxAge: 7 * 24 * 60 * 60 * 1000, // MS
+            httpOnly: true, // prevent XSS attacks: cross-site scripting
+            sameSite: "strict", // CSRF attacks
+            secure: process.env.NODE_ENV === "development" ? false : true,
+        });
 
         res.status(200).json({
             sucess: true,
